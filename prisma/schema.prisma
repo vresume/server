@@ -1,0 +1,118 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "tracing"]
+  binaryTargets   = ["native", "linux-musl", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  individual
+  recruiter
+  administrator
+}
+
+enum DocumentType {
+  resume
+  coverLetter
+  other
+}
+
+model Auth0User {
+  id         String   @id @unique @map("id")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  email      String   @unique
+  name       String?
+  picture    String?
+  nickname   String?
+  givenName  String?  @map("given_name")
+  familyName String?  @map("family_name")
+  locale     String?
+
+  user User? @relation(fields: [id], references: [authId])
+
+  @@map("auth0_user")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  authId    String   @unique @map("auth_id") // Auth0 sub
+
+  // billing
+  stripeCustomerId       String?   @unique @map("stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map("stripe_subscription_id")
+  stripePriceId          String?   @map("stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end") @db.Timestamptz(6)
+  stripeCancelAt         DateTime? @map("stripe_cancel_at") @db.Timestamptz(6)
+
+  Auth0User Auth0User?
+  role      Role       @default(individual)
+
+  @@map("user")
+}
+
+model Document {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  title     String       @map("title")
+  type      DocumentType @default(resume) @map("type")
+
+  description String? @map("description")
+
+  userId    Int  @map("user_id")
+  versionId Int  @map("version_id")
+  profileId Int? @map("profile_id")
+  postingId Int? @map("posting_id")
+
+  @@map("document")
+}
+
+model Version {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  prompt String? @map("prompt")
+  data   String? @map("data")
+
+  version Int
+
+  documentId Int
+
+  @@map("version")
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tokens String? @map("tokens")
+  blob   String? @map("blob")
+  text   String? @map("text")
+
+  documentId Int
+
+  @@map("profile")
+}
+
+model Posting {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tokens String? @map("tokens")
+  blob   String? @map("blob")
+  text   String? @map("text")
+
+  documentId Int
+
+  @@map("posting")
+}
