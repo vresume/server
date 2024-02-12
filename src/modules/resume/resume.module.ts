@@ -18,7 +18,7 @@ import { Auth0UserRepository } from '~/vendors/prisma/repositories/auth0-user.re
   providers: [
     ResumeService,
     ScraperService,
-    ResendService,
+    // ResendService,
     OpenaiService,
     UserRepository,
     DocumentRepository,

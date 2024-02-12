@@ -70,7 +70,7 @@ class ReadableString extends Readable {
 export class ResumeService {
   private readonly logger = new Logger(ResumeService.name);
   constructor(
-    private readonly resendService: ResendService,
+    // private readonly resendService: ResendService,
     private readonly completionService: CompletionService,
     private readonly assistantService: AssistantService,
     private readonly scraperService: ScraperService,
@@ -509,15 +509,15 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    const { data, error } = await this.resendService.emails.send({
-      from: 'onboarding@resend.dev',
-      to: auth0User.email,
-      subject: `[${resume.title}] v${version} is ready for viewing!`,
-      html: latestVersion[0].data,
-    });
+    // const { data, error } = await this.resendService.emails.send({
+    //   from: 'onboarding@resend.dev',
+    //   to: auth0User.email,
+    //   subject: `[${resume.title}] v${version} is ready for viewing!`,
+    //   html: latestVersion[0].data,
+    // });
 
     return {
-      mailId: data.id,
+      mailId: 'MailServiceUnavailable',
     };
   }
 }
