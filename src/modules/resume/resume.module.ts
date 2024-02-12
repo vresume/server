@@ -4,7 +4,6 @@ import { ResumeService } from '~/modules/resume/resume.service';
 import { BillingService } from '~/modules/billing/billing.service';
 import { VendorsModule } from '~/vendors/vendors.module';
 import { ScraperService } from '~/vendors/scraper/scraper.service';
-import { ResendService } from '~/vendors/resend/resend.service';
 import { OpenaiService } from '~/vendors/openai/openai.service';
 import { UserRepository } from '~/vendors/prisma/repositories/user.repository';
 import { DocumentRepository } from '~/vendors/prisma/repositories/document.repository';
@@ -18,7 +17,6 @@ import { Auth0UserRepository } from '~/vendors/prisma/repositories/auth0-user.re
   providers: [
     ResumeService,
     ScraperService,
-    // ResendService,
     OpenaiService,
     UserRepository,
     DocumentRepository,

@@ -7,7 +7,6 @@ import { Readable } from 'stream';
 import { ResumeCreateDraftDto } from '~/modules/resume/dtos/resume-create-draft.dto';
 
 import { ScraperService } from '~/vendors/scraper/scraper.service';
-import { ResendService } from '~/vendors/resend/resend.service';
 import { CompletionService } from '~/vendors/openai/completion/completion.service';
 import { AssistantService } from '~/vendors/openai/assistant/assistant.service';
 import { UserRepository } from '~/vendors/prisma/repositories/user.repository';
@@ -71,7 +70,6 @@ class ReadableString extends Readable {
 export class ResumeService {
   private readonly logger = new Logger(ResumeService.name);
   constructor(
-    // private readonly resendService: ResendService,
     private readonly completionService: CompletionService,
     private readonly assistantService: AssistantService,
     private readonly scraperService: ScraperService,
@@ -537,13 +535,6 @@ export class ResumeService {
     if (!latestVersion) {
       throw new NotFoundException('Resume not found');
     }
-
-    // const { data, error } = await this.resendService.emails.send({
-    //   from: 'onboarding@resend.dev',
-    //   to: auth0User.email,
-    //   subject: `[${resume.title}] v${version} is ready for viewing!`,
-    //   html: latestVersion[0].data,
-    // });
 
     return {
       mailId: 'MailServiceUnavailable',
