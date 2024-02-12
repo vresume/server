@@ -33,8 +33,6 @@ model Auth0User {
   familyName String?  @map("family_name")
   locale     String?
 
-  user User? @relation(fields: [id], references: [authId])
-
   @@map("auth0_user")
 }
 
@@ -51,8 +49,7 @@ model User {
   stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end") @db.Timestamptz(6)
   stripeCancelAt         DateTime? @map("stripe_cancel_at") @db.Timestamptz(6)
 
-  Auth0User Auth0User?
-  role      Role       @default(individual)
+  role Role @default(individual)
 
   @@map("user")
 }

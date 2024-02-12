@@ -45,6 +45,9 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('vResume API')
     .setVersion('0.1.0')
+    .setDescription(
+      'Client Guest Credentials [guest@vresume.dev, Cookies123$b]',
+    )
     .addBearerAuth()
     .addSecurityRequirements('bearer')
     .build();

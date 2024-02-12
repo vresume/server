@@ -34,7 +34,8 @@ export class ResumeController {
   @UseGuards(AuthorizationGuard)
   @Get()
   async get(@Request() req: any) {
-    return this.resumeService.get(req.auth.payload.sub);
+    const { authId } = await this.resumeService.getOrCreateUser(req.auth);
+    return this.resumeService.get(authId);
   }
 
   @UseGuards(AuthorizationGuard)

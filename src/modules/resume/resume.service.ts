@@ -19,6 +19,7 @@ import { VersionRepository } from '~/vendors/prisma/repositories/version.reposit
 import ResumeParserDefinitions from '~/vendors/openai/assistant/definitions/resume-parser.definitions';
 import { ResumeVersionUpdateDto } from './dtos/resume-version-update.dto';
 import { Auth0UserRepository } from '~/vendors/prisma/repositories/auth0-user.repository';
+import { User } from '@prisma/client';
 
 const SYSTEM_MESSAGE = {
   role: 'system',
@@ -81,6 +82,34 @@ export class ResumeService {
     private readonly versionRepository: VersionRepository,
     private readonly auth0UserRepository: Auth0UserRepository,
   ) {}
+
+  async getOrCreateUser(auth: any) {
+    try {
+      let auth0User = await this.auth0UserRepository.user({
+        id: auth.payload.sub,
+      });
+      if (!auth0User) {
+        auth0User = await this.auth0UserRepository.createUser({
+          id: auth.payload.sub,
+          email: 'guest@vresume.dev',
+          name: 'Guest',
+          picture: 'https://resend.dev/assets/img/logo.png',
+        });
+      }
+
+      let user = await this.userRepository.user({ authId: auth.payload.sub });
+      if (!user) {
+        user = await this.userRepository.createUser({
+          authId: auth.payload.sub,
+        });
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error('Error getting or creating user:', error);
+      throw error;
+    }
+  }
 
   async get(auth0UserId: string) {
     const user = await this.userRepository.user({ authId: auth0UserId });
