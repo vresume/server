@@ -10,7 +10,7 @@ import { DocumentRepository } from '~/vendors/prisma/repositories/document.repos
 import { ProfileRepository } from '~/vendors/prisma/repositories/profile.repository';
 import { PostingRepository } from '~/vendors/prisma/repositories/posting.repository';
 import { VersionRepository } from '~/vendors/prisma/repositories/version.repository';
-import { Auth0UserRepository } from '~/vendors/prisma/repositories/auth0-user.repository';
+import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [VendorsModule],
@@ -24,7 +24,7 @@ import { Auth0UserRepository } from '~/vendors/prisma/repositories/auth0-user.re
     PostingRepository,
     VersionRepository,
     BillingService,
-    Auth0UserRepository,
+    UsersService,
   ],
   controllers: [ResumeController],
   exports: [ResumeService],
