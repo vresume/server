@@ -21,26 +21,17 @@ enum DocumentType {
   other
 }
 
-model Auth0User {
-  id         String   @id @unique @map("id")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  email      String   @unique
-  name       String?
-  picture    String?
-  nickname   String?
-  givenName  String?  @map("given_name")
-  familyName String?  @map("family_name")
-  locale     String?
-
-  @@map("auth0_user")
-}
-
 model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  authId    String   @unique @map("auth_id") // Auth0 sub
+
+  // profile
+  authId        String   @unique @map("auth_id") // Auth0 sub
+  email         String?  @unique
+  nickname      String?  @map("nickname")
+  picture       String?  @map("picture")
+  emailVerified Boolean? @map("email_verified")
 
   // billing
   stripeCustomerId       String?   @unique @map("stripe_customer_id")

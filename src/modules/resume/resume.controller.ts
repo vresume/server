@@ -14,7 +14,7 @@ import {
   Patch,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumeService } from '~/modules/resume/resume.service';
 import { ResumeCreateDraftDto } from '~/modules/resume/dtos/resume-create-draft.dto';
@@ -23,8 +23,9 @@ import { AuthorizationGuard } from '~/authorization/authorization.guard';
 import { BillingException } from '~/modules/billing/billing.exception';
 import { ResumeVersionUpdateDto } from '~/modules/resume/dtos/resume-version-update.dto';
 
-@ApiTags('resume')
-@Controller('resume')
+@ApiTags('resumes')
+@ApiBearerAuth()
+@Controller('resumes')
 export class ResumeController {
   constructor(
     private readonly resumeService: ResumeService,
@@ -34,14 +35,17 @@ export class ResumeController {
   @UseGuards(AuthorizationGuard)
   @Get()
   async get(@Request() req: any) {
-    const { authId } = await this.resumeService.getOrCreateUser(req.auth);
-    return this.resumeService.get(authId);
+    return this.resumeService.getAllByUserAuth0Id(req.auth.payload.sub);
   }
 
   @UseGuards(AuthorizationGuard)
   @Get(':id')
-  async getById(@Request() req: any, @Param('id') id: string) {
-    return this.resumeService.getById(req.auth.payload.sub, parseInt(id));
+  async getResumeById(@Request() req: any, @Param('id') resumeId: number) {
+    return this.resumeService.getResumeById(
+      req.auth.payload.sub,
+      req.auth.payload.permissions,
+      resumeId,
+    );
   }
 
   @UseGuards(AuthorizationGuard)
@@ -75,7 +79,7 @@ export class ResumeController {
   ) {
     return this.resumeService.getVersion(
       req.auth.payload.sub,
-      parseInt(id),
+      +id,
       parseInt(version),
     );
   }
