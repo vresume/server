@@ -81,20 +81,6 @@ export class ResumeController {
   }
 
   @UseGuards(AuthorizationGuard)
-  @Put(':id/version/:version/mail')
-  async mailVersion(
-    @Request() req: any,
-    @Param('id') id: string,
-    @Param('version') version: string,
-  ) {
-    return this.resumeService.mailVersion(
-      req.auth.payload.sub,
-      parseInt(id),
-      parseInt(version),
-    );
-  }
-
-  @UseGuards(AuthorizationGuard)
   @Post()
   @UseInterceptors(FileInterceptor('resume'))
   @ApiConsumes('multipart/form-data')

@@ -18,7 +18,6 @@ import { VersionRepository } from '~/vendors/prisma/repositories/version.reposit
 import ResumeParserDefinitions from '~/vendors/openai/assistant/definitions/resume-parser.definitions';
 import { ResumeVersionUpdateDto } from './dtos/resume-version-update.dto';
 import { Auth0UserRepository } from '~/vendors/prisma/repositories/auth0-user.repository';
-import { User } from '@prisma/client';
 
 const SYSTEM_MESSAGE = {
   role: 'system',
@@ -513,31 +512,4 @@ export class ResumeService {
       version,
     };
   };
-
-  async mailVersion(auth0UserId: string, resumeId: number, version: number) {
-    const user = await this.userRepository.user({ authId: auth0UserId });
-    const auth0User = await this.auth0UserRepository.user({
-      id: user.authId,
-    });
-
-    const resume = await this.documentRepository.document({
-      id: resumeId,
-      userId: user.id,
-    });
-
-    const latestVersion = await this.versionRepository.versions({
-      where: {
-        documentId: resume.id,
-        version: version,
-      },
-    });
-
-    if (!latestVersion) {
-      throw new NotFoundException('Resume not found');
-    }
-
-    return {
-      mailId: 'MailServiceUnavailable',
-    };
-  }
 }
