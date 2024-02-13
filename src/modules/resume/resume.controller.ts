@@ -79,7 +79,7 @@ export class ResumeController {
   ) {
     return this.resumeService.getVersion(
       req.auth.payload.sub,
-      parseInt(id),
+      +id,
       parseInt(version),
     );
   }

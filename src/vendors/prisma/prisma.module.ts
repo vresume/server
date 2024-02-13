@@ -6,5 +6,6 @@ import { UserRepository } from '~/vendors/prisma/repositories/user.repository';
   imports: [],
   providers: [PrismaService, UserRepository],
   exports: [PrismaService, UserRepository],
+  controllers: [],
 })
 export class PrismaModule {}

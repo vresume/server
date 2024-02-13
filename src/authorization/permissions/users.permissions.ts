@@ -1,3 +1,5 @@
 export enum UsersPermissions {
-  ReadAdmin = 'read:admin-users',
+  ReadUser = 'read:user',
+  UpdateUser = 'update:user',
+  DeleteUser = 'delete:user',
 }

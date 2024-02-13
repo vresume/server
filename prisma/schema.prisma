@@ -25,7 +25,13 @@ model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  authId    String   @unique @map("auth_id") // Auth0 sub
+
+  // profile
+  authId        String   @unique @map("auth_id") // Auth0 sub
+  email         String?  @unique
+  nickname      String?  @map("nickname")
+  picture       String?  @map("picture")
+  emailVerified Boolean? @map("email_verified")
 
   // billing
   stripeCustomerId       String?   @unique @map("stripe_customer_id")
