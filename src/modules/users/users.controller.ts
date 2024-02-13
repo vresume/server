@@ -31,14 +31,16 @@ export class UsersController {
   @UseGuards(AuthorizationGuard)
   @Get()
   async getUsers(@Req() req: ServerRequest): Promise<User[]> {
-    return await this.usersService.getUsers(req);
+    const us = await this.usersService.getUsers(req);
+    return us;
   }
 
   @UseGuards(AuthorizationGuard)
   @Get(':id')
   async getUser(@Req() req: ServerRequest, @Param('id') id: number) {
     try {
-      return await this.usersService.getUser(req, +id);
+      const u = await this.usersService.getUser(req, +id);
+      return u;
     } catch (e) {
       this.logger.error(e, e.stack, req.auth);
       throw e;
