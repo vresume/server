@@ -30,7 +30,7 @@ export class CompletionService {
       .then((response) => response.choices[0].message.content);
   }
 
-  async extendCompletion(messages: any): Promise<string> {
+  async extend(messages: any): Promise<string> {
     return this.openai.chat.completions
       .create({
         model: this.model,

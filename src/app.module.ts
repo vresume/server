@@ -2,9 +2,11 @@ import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
-import { ModulesModule } from '~/modules/modules.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '~/all-exceptions.filter';
+import { DocumentsModule } from '~/modules/documents/documents.module';
+import { UsersModule } from '~/modules/users/users.module';
+import { BuilderModule } from '~/modules/builder/builder.module';
 
 @Module({
   imports: [
@@ -28,7 +30,9 @@ import { AllExceptionsFilter } from '~/all-exceptions.filter';
         SCRAPERAPI_KEY: Joi.string().required(),
       }),
     }),
-    ModulesModule,
+    UsersModule,
+    DocumentsModule,
+    BuilderModule,
   ],
   controllers: [],
   providers: [
