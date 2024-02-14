@@ -136,7 +136,6 @@ export class DocumentsService {
     });
 
     const newData = 'New Data';
-    const newPrompt = 'New Prompt';
 
     const user = await this.usersService.getUserByAuthId(req.auth.payload.sub);
     if (user.id !== doc.userId) {
@@ -145,7 +144,7 @@ export class DocumentsService {
           data: newData,
           documentId: doc.id,
           version: currentVersion.version + 1,
-          prompt: newPrompt,
+          prompt: documentVersionPatchDto.query,
         });
 
         await this.repository.updateDocument({
@@ -163,7 +162,7 @@ export class DocumentsService {
       data: newData,
       documentId: doc.id,
       version: currentVersion.version + 1,
-      prompt: newPrompt,
+      prompt: documentVersionPatchDto.query,
     });
 
     await this.repository.updateDocument({
