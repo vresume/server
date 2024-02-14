@@ -1,12 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as pdfparse from 'pdf-parse';
 import { WritableStream } from 'htmlparser2/lib/WritableStream';
+import { Version } from '@prisma/client';
 
 import { ReadableString } from '~/utils/readable-string';
 import { AssistantService } from '~/vendors/openai/assistant/assistant.service';
 import ResumeParserDefinitions from '~/vendors/openai/assistant/definitions/resume-parser.definitions';
 import { CompletionService } from '~/vendors/openai/completion/completion.service';
 import { ScraperService } from '~/vendors/scraper/scraper.service';
+
+type KnowledgeBase = {
+  role: string;
+  content: string;
+}[];
 
 @Injectable()
 export class BuilderService {
@@ -16,6 +22,60 @@ export class BuilderService {
     private readonly scraperService: ScraperService,
     private readonly completionService: CompletionService,
   ) {}
+
+  async versionResume(versions: Version[], query = '', selectedHtmlNodes = '') {
+    const knowledge = this.buildKnowledgeBase(versions);
+    this.logger.debug('knowledge:', knowledge);
+    const html = await this.buildHtmlGeneratorPrompt(
+      knowledge,
+      query,
+      selectedHtmlNodes,
+    );
+    if (!html || !html.length) {
+      return 'No response from the AI';
+    }
+
+    return html;
+  }
+
+  buildKnowledgeBase(versions: Version[]): KnowledgeBase {
+    const base = [ResumeAssistantInstructions];
+    for (const version of versions) {
+      base.push({
+        role: 'user',
+        content: version.prompt,
+      });
+
+      base.push({
+        role: 'assistant',
+        content: version.data,
+      });
+    }
+    return base;
+  }
+
+  async buildHtmlGeneratorPrompt(
+    base: KnowledgeBase,
+    query: string,
+    selectedHtmlNodes: string,
+  ) {
+    const instructions = [
+      query.length
+        ? query
+        : 'Please revise the HTML to meet professional standards.',
+      selectedHtmlNodes.length && selectedHtmlNodes.length > 16
+        ? `Apply these changes to the selected HTML nodes: ${selectedHtmlNodes}`
+        : '',
+    ];
+    const messages = [
+      ...base,
+      {
+        role: 'user',
+        content: instructions.join(' '),
+      },
+    ];
+    return await this.completionService.extend(messages);
+  }
 
   async buildResume(document: Express.Multer.File, url: string) {
     const profile = await this.getProfileFromFile(document);

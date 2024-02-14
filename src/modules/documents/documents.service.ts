@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -17,6 +18,7 @@ import { BuilderService } from '~/modules/builder/builder.service';
 
 @Injectable()
 export class DocumentsService {
+  private readonly logger = new Logger(DocumentsService.name);
   constructor(
     private readonly repository: DocumentRepository,
     private readonly versionRepository: VersionRepository,
@@ -126,6 +128,28 @@ export class DocumentsService {
     });
   }
 
+  private async getVerionedDocument(
+    documentId: number,
+    documentVersionPatchDto: DocumentVersionPatchDto,
+  ) {
+    const versions = await this.versionRepository.versions({
+      where: { documentId },
+    });
+
+    if (versions.length === 0) {
+      throw new NotFoundException('Version not found');
+    }
+
+    const data = await this.builderService.versionResume(
+      versions,
+      documentVersionPatchDto.query,
+      documentVersionPatchDto.selected,
+    );
+    this.logger.debug('dat:', data);
+
+    return data;
+  }
+
   async updateVersion(
     req: ServerRequest,
     documentId: number,
@@ -142,13 +166,16 @@ export class DocumentsService {
       id: versionId,
     });
 
-    const newData = 'New Data';
-
     const user = await this.usersService.getUserByAuthId(req.auth.payload.sub);
     if (user.id !== doc.userId) {
       if (req.auth.payload.permissions.includes(DocumentsPermissions.Update)) {
+        const data = await this.getVerionedDocument(
+          doc.id,
+          documentVersionPatchDto,
+        );
+
         const newVersion = await this.versionRepository.createVersion({
-          data: newData,
+          data,
           documentId: doc.id,
           version: currentVersion.version + 1,
           prompt: documentVersionPatchDto.query,
@@ -165,8 +192,13 @@ export class DocumentsService {
       throw new ForbiddenException('Permission denied');
     }
 
+    const data = await this.getVerionedDocument(
+      doc.id,
+      documentVersionPatchDto,
+    );
+
     const newVersion = await this.versionRepository.createVersion({
-      data: newData,
+      data,
       documentId: doc.id,
       version: currentVersion.version + 1,
       prompt: documentVersionPatchDto.query,
