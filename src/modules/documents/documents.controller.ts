@@ -10,6 +10,10 @@ import {
   Delete,
   UseInterceptors,
   Patch,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  UploadedFile,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -65,11 +69,21 @@ export class DocumentsController {
   @UseInterceptors(FileInterceptor('document'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: DocumentCreateDto })
-  async createUser(
+  async createDocument(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1000000 }),
+          new FileTypeValidator({ fileType: 'application/pdf' }),
+        ],
+      }),
+    )
+    document: Express.Multer.File,
     @Req() req: ServerRequest,
     @Body() documentCreateDto: DocumentCreateDto,
   ) {
     try {
+      documentCreateDto.document = document;
       return await this.documentsService.createDocument(req, documentCreateDto);
     } catch (e) {
       this.logger.error(e, e.stack, req.auth);

@@ -13,6 +13,7 @@ import { DocumentRepository } from '~/vendors/prisma/repositories/document.repos
 import { DocumentsPermissions } from '~/authorization/permissions/documents.permissions';
 import { UsersService } from '~/modules/users/users.service';
 import { VersionRepository } from '~/vendors/prisma/repositories/version.repository';
+import { BuilderService } from '~/modules/builder/builder.service';
 
 @Injectable()
 export class DocumentsService {
@@ -20,6 +21,7 @@ export class DocumentsService {
     private readonly repository: DocumentRepository,
     private readonly versionRepository: VersionRepository,
     private readonly usersService: UsersService,
+    private readonly builderService: BuilderService,
   ) {}
 
   async getDocuments(req: ServerRequest) {
@@ -83,11 +85,16 @@ export class DocumentsService {
       userId: user.id,
     });
 
+    const { html, prompt } = await this.builderService.buildResume(
+      documentCreateDto.document,
+      documentCreateDto.extras,
+    );
+
     const version = await this.versionRepository.createVersion({
-      data: '',
       documentId: doc.id,
+      prompt,
+      data: html,
       version: 0,
-      prompt: '',
     });
 
     await this.repository.updateDocument({
